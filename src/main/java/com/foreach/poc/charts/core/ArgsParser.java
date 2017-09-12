@@ -42,6 +42,14 @@ public class ArgsParser {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "chartType='" + chartType + '\'' +
+                ", limit=" + limit +
+                '}';
+    }
+
     /**
      * Command-line parser method. The application should accept two parameters:
      * 	1. A command, which will be either "chart" or "state_chart"

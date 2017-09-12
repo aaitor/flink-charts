@@ -19,7 +19,10 @@ package com.foreach.poc.charts;
  */
 
 import com.foreach.poc.charts.core.ArgsParser;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.cli.*;
+import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -47,6 +50,7 @@ import org.apache.log4j.Logger;
 public class BatchMain {
 
 	static final Logger log= LogManager.getLogger(BatchMain.class);
+	static Config config;
 
 	/**
 	 * 	Flink-charts batch job. Giving the parameters:
@@ -69,8 +73,10 @@ public class BatchMain {
 	 */
 	public static void main(String[] args) throws Exception {
 
+		ArgsParser argsParser= null;
 		try {
-			ArgsParser.builder(args);
+			argsParser= ArgsParser.builder(args);
+			config= ConfigFactory.load();
 		} catch (ParseException ex)	{
 			log.error("Unable to parse arguments");
 			HelpFormatter formatter = new HelpFormatter();
@@ -78,6 +84,9 @@ public class BatchMain {
 			System.exit(1);
 		}
 
+		log.info("Initializing job: " + argsParser.toString());
+
+		log.info("Initializing Flink engine");
 		// set up the batch execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
@@ -88,7 +97,8 @@ public class BatchMain {
 		 * 2. Filter the data
 		 * 3. Group
 		 */
-        //env.readTextFile()
+		log.info("Parsing JSON file: " + config.getString("batch.file.path"));
+		//DataSet<String> jsonTags= env.readTextFile(config.getString("batch.file.path"));
 
 		/**
 		 * new PipelineConf()
