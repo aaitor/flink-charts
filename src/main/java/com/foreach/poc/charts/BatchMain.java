@@ -18,7 +18,11 @@ package com.foreach.poc.charts;
  * limitations under the License.
  */
 
+import com.foreach.poc.charts.core.ArgsParser;
+import org.apache.commons.cli.*;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 /**
  * Skeleton for a Flink Batch Job.
@@ -42,7 +46,38 @@ import org.apache.flink.api.java.ExecutionEnvironment;
  */
 public class BatchMain {
 
+	static final Logger log= LogManager.getLogger(BatchMain.class);
+
+	/**
+	 * 	Flink-charts batch job. Giving the parameters:
+	 * 	chart 3
+	 * 	Should output the top 3 most tagged tracks irrespective of user location. The output should
+	 * 	be in a columnar format and contain the following fields:
+	 * 	CHART POSITION , TRACK TITLE , ARTIST NAME
+	 *
+	 * 	Thus, the output may be as follows:
+	 * 		1 Shape Of You Ed Sheeran
+	 * 		2 24k Magic Bruno Mars
+	 * 		3 This Girl Kungs
+	 *
+	 *  Similarly, giving the parameters:
+	 *  state_chart 3
+	 *  Should output the top 3 tracks in each and every US state. The output format for the state
+	 *  chart should be similar to the above, but you are free to define it.
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
+
+		try {
+			ArgsParser.builder(args);
+		} catch (ParseException ex)	{
+			log.error("Unable to parse arguments");
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("java -jar xxx.jar -c com.foreach.poc.charts.BatchMain", ArgsParser.getDefaultOptions());
+			System.exit(1);
+		}
+
 		// set up the batch execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
@@ -53,6 +88,7 @@ public class BatchMain {
 		 * 2. Filter the data
 		 * 3. Group
 		 */
+        //env.readTextFile()
 
 		/**
 		 * new PipelineConf()
