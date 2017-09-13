@@ -34,12 +34,6 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
     @JsonProperty
     public String type;
 
-    public String geoZone;     // Tag location 2-letter state code when country is US
-
-    public String geoRegionLocality;
-
-    public String geoRegionCountry;
-
     @JsonProperty
     public double latitude;
 
@@ -49,7 +43,24 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
     @JsonProperty
     public String client;
 
+    public long trackId;
+
+    public String trackTitle;
+
+    public String artistName;
+
+    public String geoZone;     // Tag location 2-letter state code when country is US
+
+    public String geoRegionLocality;
+
+    public String geoRegionCountry;
+
+
     public TagEvent()   {
+        // Jackson initialization of default values
+        this.trackId= -1l;
+        this.trackTitle= "";
+        this.artistName= "";
         this.geoZone= "";
         this.geoRegionCountry= "";
         this.geoRegionLocality= "";
@@ -59,8 +70,9 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
         return (TagEvent) convertToModel(jsonTag);
     }
 
+    // TODO: Would be great to revisit this to implement any kind of generic nested parser
     /**
-     * Method to deal with nested TagEvent JSON structure. Jackson black magic can deal with it using
+     * Methods to deal with nested TagEvent JSON structure. Jackson black magic can deal with it using
      * annotations. So some attributes have to be deserialized in an alternative way.
      * @param geolocation
      */
@@ -75,11 +87,33 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
                 this.longitude= (double) geolocation.get("longitude");
 
             if (geolocation.containsKey("region") && geolocation.get("region") instanceof LinkedHashMap)  {
-                LinkedHashMap<String, String> region= (LinkedHashMap<String, String>) geolocation.get("region");
+                LinkedHashMap<String, String> region= (LinkedHashMap) geolocation.get("region");
                 if (region.containsKey("country"))
                     this.geoRegionCountry= region.get("country").toString();
                 if (region.containsKey("locality"))
                     this.geoRegionLocality= region.get("locality").toString();
+            }
+        }   catch (Exception ex)    {
+        }
+
+    }
+
+    @JsonSetter("match")
+    public void setMatch(LinkedHashMap match) {
+        try {
+
+            if (match.containsKey("track") && match.get("track") instanceof LinkedHashMap)  {
+                LinkedHashMap<String, Object> track= (LinkedHashMap) match.get("track");
+                if (track.containsKey("id"))
+                    this.trackId= Long.parseLong(track.get("id").toString());
+                if (track.containsKey("metadata") && track.get("metadata") instanceof LinkedHashMap)  {
+                    LinkedHashMap<String, String> metadata= (LinkedHashMap) track.get("metadata");
+                    if (metadata.containsKey("artistname"))
+                        this.artistName= metadata.get("artistname");
+                    if (metadata.containsKey("tracktitle"))
+                        this.trackTitle= metadata.get("tracktitle");
+                }
+
             }
         }   catch (Exception ex)    {
         }

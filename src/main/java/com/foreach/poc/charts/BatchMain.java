@@ -25,6 +25,7 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.commons.cli.*;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.aggregation.Aggregations;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -105,7 +106,9 @@ public class BatchMain {
 			return TagEvent.builder(line);
 		});
 
-		rawTags.filter( t -> !t.geoZone.isEmpty())
+		rawTags
+				.filter( t -> !t.geoZone.isEmpty() && t.trackId > 0)
+				.groupBy("trackId")
 				.first(5).print();
 		//rawTags.first(5).print();
 		/**

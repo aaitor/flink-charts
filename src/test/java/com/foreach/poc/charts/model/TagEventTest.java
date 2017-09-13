@@ -45,6 +45,9 @@ public class TagEventTest {
         assertEquals(38.96, tagEvent.latitude, 0.001);
         assertEquals(-76.21, tagEvent.longitude, 0.001);
         assertEquals("XXX", tagEvent.client);
+        assertEquals(329032579, tagEvent.trackId);
+        assertEquals("Loveless", tagEvent.trackTitle);
+        assertEquals("Lo Moon", tagEvent.artistName);
 
     }
 
