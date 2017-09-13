@@ -1,6 +1,16 @@
 package com.foreach.poc.charts.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 
 
 /**
@@ -8,110 +18,72 @@ import java.time.LocalDateTime;
  * The TagEvent class is flat for this test (it doesn't represent the nested model found in the JSON events).
  * Would be possible to use a nested structure to provide a better semantic and a better understanding of the model.
  */
-public class TagEvent {
 
-    private String tagid;
-    private LocalDateTime timestamp;
-    private String timezone;
-    private String type;
-    private String geoZone;     // Tag location 2-letter state code when country is US
-    private String geoRegionLocality;
-    private String geoRegionCountry;
-    private double latitude;
-    private double longitude;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TagEvent extends TagsModel implements FromJsonToModel {
 
-    private String client;
+    @JsonProperty
+    public String tagid;
 
-    public TagEvent()   {}
+    @JsonProperty
+    public long timestamp;
 
-    public String getTagid() {
-        return tagid;
+    @JsonProperty
+    public String timezone;
+
+    @JsonProperty
+    public String type;
+
+    public String geoZone;     // Tag location 2-letter state code when country is US
+
+    public String geoRegionLocality;
+
+    public String geoRegionCountry;
+
+    @JsonProperty
+    public double latitude;
+
+    @JsonProperty
+    public double longitude;
+
+    @JsonProperty
+    public String client;
+
+    public TagEvent()   {
+        this.geoZone= "";
+        this.geoRegionCountry= "";
+        this.geoRegionLocality= "";
     }
 
-    public TagEvent setTagid(String tagid) {
-        this.tagid = tagid;
-        return this;
+    public static TagEvent builder(String jsonTag) throws IOException {
+        return (TagEvent) convertToModel(jsonTag);
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
+    /**
+     * Method to deal with nested TagEvent JSON structure. Jackson black magic can deal with it using
+     * annotations. So some attributes have to be deserialized in an alternative way.
+     * @param geolocation
+     */
+    @JsonSetter("geolocation")
+    public void setGeolocation(LinkedHashMap geolocation) {
+        try {
+            if (geolocation.containsKey("zone"))
+                this.geoZone= geolocation.get("zone").toString();
+            if (geolocation.containsKey("latitude"))
+                this.latitude= (double) geolocation.get("latitude");
+            if (geolocation.containsKey("longitude"))
+                this.longitude= (double) geolocation.get("longitude");
 
-    public TagEvent setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-        return this;
-    }
+            if (geolocation.containsKey("region") && geolocation.get("region") instanceof LinkedHashMap)  {
+                LinkedHashMap<String, String> region= (LinkedHashMap<String, String>) geolocation.get("region");
+                if (region.containsKey("country"))
+                    this.geoRegionCountry= region.get("country").toString();
+                if (region.containsKey("locality"))
+                    this.geoRegionLocality= region.get("locality").toString();
+            }
+        }   catch (Exception ex)    {
+        }
 
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public TagEvent setTimezone(String timezone) {
-        this.timezone = timezone;
-        return this;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public TagEvent setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getGeoZone() {
-        return geoZone;
-    }
-
-    public TagEvent setGeoZone(String geoZone) {
-        this.geoZone = geoZone;
-        return this;
-    }
-
-    public String getGeoRegionLocality() {
-        return geoRegionLocality;
-    }
-
-    public TagEvent setGeoRegionLocality(String geoRegionLocality) {
-        this.geoRegionLocality = geoRegionLocality;
-        return this;
-    }
-
-    public String getGeoRegionCountry() {
-        return geoRegionCountry;
-    }
-
-    public TagEvent setGeoRegionCountry(String geoRegionCountry) {
-        this.geoRegionCountry = geoRegionCountry;
-        return this;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public TagEvent setLatitude(double latitude) {
-        this.latitude = latitude;
-        return this;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public TagEvent setLongitude(double longitude) {
-        this.longitude = longitude;
-        return this;
-    }
-
-    public String getClient() {
-        return client;
-    }
-
-    public TagEvent setClient(String client) {
-        this.client = client;
-        return this;
     }
 
     @Override
@@ -128,5 +100,9 @@ public class TagEvent {
                 ", longitude=" + longitude +
                 ", client='" + client + '\'' +
                 '}';
+    }
+
+    public static TagEvent convertToModel(String json) throws IOException {
+        return getReaderInstance(TagEvent.class).readValue(json);
     }
 }

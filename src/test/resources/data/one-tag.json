@@ -1,0 +1,42 @@
+{
+  "client": "XXX",
+  "geolocation": {
+    "zone": "MD",
+    "region": {
+      "locality": "Maryland",
+      "country": "United States"
+    },
+    "latitude": 38.96,
+    "longitude": -76.21
+  },
+  "installation": {
+    "accountId": "628aae8255b3",
+    "application": {
+      "flavour": "XX",
+      "version": "11.0.0"
+    },
+    "country": "US",
+    "device": {
+      "operatingSystem": {
+        "name": "iOS",
+        "version": "10.3.1"
+      }
+    },
+    "language": "en",
+    "platform": "IPHONE"
+  },
+  "match": {
+    "track": {
+      "id": 329032579,
+      "metadata": {
+        "artistname": "Lo Moon",
+        "tracktitle": "Loveless"
+      },
+      "offset": 290.103
+    }
+  },
+  "tagid": "D57A56E7-9827-43",
+  "timestamp": 1495195191721,
+  "timezone": "America/New_York",
+  "type": "AUDIO"
+}

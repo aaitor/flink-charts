@@ -19,6 +19,7 @@ package com.foreach.poc.charts;
  */
 
 import com.foreach.poc.charts.core.ArgsParser;
+import com.foreach.poc.charts.model.TagEvent;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.cli.*;
@@ -97,9 +98,16 @@ public class BatchMain {
 		 * 2. Filter the data
 		 * 3. Group
 		 */
-		log.info("Parsing JSON file: " + config.getString("batch.file.path"));
-		//DataSet<String> jsonTags= env.readTextFile(config.getString("batch.file.path"));
+		log.info("Parsing JSON file: " + config.getString("ingestion.file.path"));
+		DataSet<String> jsonTags= env.readTextFile(config.getString("ingestion.file.path"));
 
+		DataSet<TagEvent> rawTags= jsonTags.map(line -> {
+			return TagEvent.builder(line);
+		});
+
+		rawTags.filter( t -> !t.geoZone.isEmpty())
+				.first(5).print();
+		//rawTags.first(5).print();
 		/**
 		 * new PipelineConf()
 		 * 		.setConfig("file.path.yaml")
