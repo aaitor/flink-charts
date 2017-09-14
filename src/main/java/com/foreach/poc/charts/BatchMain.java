@@ -23,11 +23,17 @@ import com.foreach.poc.charts.model.TagEvent;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.cli.*;
+import org.apache.flink.api.common.operators.Order;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
+import static org.apache.flink.api.java.aggregation.Aggregations.SUM;
 
 /**
  * Skeleton for a Flink Batch Job.
@@ -76,6 +82,7 @@ public class BatchMain {
 	public static void main(String[] args) throws Exception {
 
 		ArgsParser argsParser= null;
+
 		try {
 			argsParser= ArgsParser.builder(args);
 			config= ConfigFactory.load();
@@ -89,28 +96,31 @@ public class BatchMain {
 		log.info("Initializing job: " + argsParser.toString());
 
 		log.info("Initializing Flink engine");
-		// set up the batch execution environment
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
-		/**
-		 * Application steps
-		 * 0. Parse input
-		 * 1. Ingest data from Json files (local folder)
-		 * 2. Filter the data
-		 * 3. Group
-		 */
-		log.info("Parsing JSON file: " + config.getString("ingestion.file.path"));
+
+		log.info("Ingestion Phase. Parsing JSON file: " + config.getString("ingestion.file.path"));
 		DataSet<String> jsonTags= env.readTextFile(config.getString("ingestion.file.path"));
 
-		DataSet<TagEvent> rawTags= jsonTags.map(line -> {
-			return TagEvent.builder(line);
-		});
+		log.info("Ingestion Phase. Mapping the string lines to TagEvent bean");
+		DataSet<TagEvent> rawTags= jsonTags.map(line -> TagEvent.builder(line));
 
-		rawTags
+		log.info("Cleansing Phase. Removing the invalid documents");
+		DataSet<Tuple3<Long, Integer, TagEvent>> tagsTuple= rawTags
 				.filter( t -> !t.geoZone.isEmpty() && t.trackId > 0)
-				.groupBy("trackId")
-				.first(5).print();
-		//rawTags.first(5).print();
+				.map( t -> new Tuple3<>(t.trackId, 1, t))
+				.returns(new TypeHint<Tuple3<Long, Integer, TagEvent>>(){});
+
+		log.info("Transformation Phase. Computing the tags");
+		tagsTuple.groupBy(0) // Grouping by trackId
+				 .sum(1) // Sum the occurrences of each grouped item
+				 .sortPartition(1, Order.DESCENDING).setParallelism(1) // Sort by count
+				 .first(argsParser.getLimit()) // Get only the number of results defined by the user
+				 .collect()
+				 .forEach( t -> log.info("trackId: " + t.f0 + ", count: " + t.f1 + ", " + t.toString())); // Print the results
+
+
+
 		/**
 		 * new PipelineConf()
 		 * 		.setConfig("file.path.yaml")
@@ -121,31 +131,8 @@ public class BatchMain {
  		 */
 
 
-		/**
-		 * Here, you can start creating your execution plan for Flink.
-		 *
-		 * Start with getting some data from the environment, like
-		 * 	env.readTextFile(textPath);
-		 *
-		 * then, transform the resulting DataSet<String> using operations
-		 * like
-		 * 	.filter()
-		 * 	.flatMap()
-		 * 	.join()
-		 * 	.coGroup()
-		 *
-		 * and many more.
-		 * Have a look at the programming guide for the Java API:
-		 *
-		 * http://flink.apache.org/docs/latest/apis/batch/index.html
-		 *
-		 * and the examples
-		 *
-		 * http://flink.apache.org/docs/latest/apis/batch/examples.html
-		 *
-		 */
 
 		// execute program
-		env.execute("Flink Batch Java API Skeleton");
+		//env.execute("Flink Batch Java API Skeleton");
 	}
 }

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -21,6 +23,8 @@ import java.util.LinkedHashMap;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TagEvent extends TagsModel implements FromJsonToModel {
+
+    static final Logger log= LogManager.getLogger(TagEvent.class);
 
     @JsonProperty
     public String tagid;
@@ -55,7 +59,6 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
 
     public String geoRegionCountry;
 
-
     public TagEvent()   {
         // Jackson initialization of default values
         this.trackId= -1l;
@@ -82,9 +85,9 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
             if (geolocation.containsKey("zone"))
                 this.geoZone= geolocation.get("zone").toString();
             if (geolocation.containsKey("latitude"))
-                this.latitude= (double) geolocation.get("latitude");
+                this.latitude= Double.parseDouble(geolocation.get("latitude").toString());
             if (geolocation.containsKey("longitude"))
-                this.longitude= (double) geolocation.get("longitude");
+                this.longitude= Double.parseDouble(geolocation.get("longitude").toString());
 
             if (geolocation.containsKey("region") && geolocation.get("region") instanceof LinkedHashMap)  {
                 LinkedHashMap<String, String> region= (LinkedHashMap) geolocation.get("region");
@@ -94,6 +97,7 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
                     this.geoRegionLocality= region.get("locality").toString();
             }
         }   catch (Exception ex)    {
+            log.error("Unable to parse the TagEvent(geolocation): " + geolocation + ", Exception: " + ex.getMessage());
         }
 
     }
@@ -116,6 +120,7 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
 
             }
         }   catch (Exception ex)    {
+            log.error("Unable to parse the TagEvent(match): " + match + ", Exception: " + ex.getMessage());
         }
 
     }
@@ -125,14 +130,12 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
         return "TagEvent{" +
                 "tagid='" + tagid + '\'' +
                 ", timestamp=" + timestamp +
-                ", timezone='" + timezone + '\'' +
-                ", type='" + type + '\'' +
+                ", trackId=" + trackId +
+                ", trackTitle='" + trackTitle + '\'' +
+                ", artistName='" + artistName + '\'' +
                 ", geoZone='" + geoZone + '\'' +
                 ", geoRegionLocality='" + geoRegionLocality + '\'' +
                 ", geoRegionCountry='" + geoRegionCountry + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", client='" + client + '\'' +
                 '}';
     }
 
