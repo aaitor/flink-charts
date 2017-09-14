@@ -18,7 +18,7 @@ package com.foreach.poc.charts;
  * limitations under the License.
  */
 
-import com.foreach.poc.charts.core.ArgsParser;
+import com.foreach.poc.charts.core.*;
 import com.foreach.poc.charts.model.TagEvent;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -95,9 +95,14 @@ public class BatchMain {
 
 		log.info("Initializing job: " + argsParser.toString());
 
-		log.info("Initializing Flink engine");
-		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+//		log.info("Initializing Flink engine");
+//		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
+		PipelineChartsConf pipelineConf= new PipelineChartsConf(config, argsParser);
+		ChartsBatchPipeline pipeline= new ChartsBatchPipeline(pipelineConf);
+		DataSet<TagEvent> inputTags= pipeline.ingestion();
+		DataSet<TagEvent> cleanTags= pipeline.cleansing(inputTags);
+		pipeline.transformation();
 
 		log.info("Ingestion Phase. Parsing JSON file: " + config.getString("ingestion.file.path"));
 		DataSet<String> jsonTags= env.readTextFile(config.getString("ingestion.file.path"));
