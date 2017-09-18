@@ -25,6 +25,18 @@ public class ArgsParserTest {
         assertEquals(5, parser.getLimit());
     }
 
+
+    @Test
+    public void configFileTest() throws Exception {
+        String args[]= {"-c", "chart", "-l", "3", "-f", "myfile.conf"};
+        ArgsParser parser= ArgsParser.builder(args);
+
+        assertEquals("chart", parser.getChartType());
+        assertEquals(3, parser.getLimit());
+        assertEquals("myfile.conf", parser.getFileConfPath());
+
+    }
+
     @Test(expected = ParseException.class)
     public void noValidChartOptionTest() throws Exception {
         String args[]= {"-c", "DOESNT-EXIST", "-l", "0"};

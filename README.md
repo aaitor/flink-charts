@@ -32,17 +32,19 @@ Also using maven assembly the application generates a zip file in target folder 
 
 ## How to run the application?
 
-In this PoC the properties file have not being externalize (TODO), so it means before to compile and run the application
-you should edit the **src/main/resources/application.conf** file specifying your local configuration, specially the 
-ingestion.file.path linking to your dataset.
+Properties file are packaged in an independent zip file, if the -f option is not provided the software will use the 
+properties by default packaged in the jar file (TODO: Uncoment in the pom.xml the options to remove those files).
 This package doesn't include the sample data set, so you should copy your own dataset and setup the file in the application.conf file.
 
 After to modify the application.conf and compile the application, you can run using the following command:
 * To generate the general top tags use the -c chart parameter: 
-`$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5`
-* To generate the top tags per state use the -c state_chart parameter:
-`$FLINK_HOME/bin/flink.bat run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c state_chart -l 5`
+`$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5 -f c://Users//yourpath//application.conf`
 
+* To generate the top tags per state use the -c state_chart parameter:
+`$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c state_chart -l 5 -f c://Users//yourpath//application.conf`
+
+Depending if you are running in Windows, MacOS or Linux you will need to run the flink.sh or flink.bat script. Also the paths 
+to the config files should be adapted depending of the environment. 
 
 ## Application Architecture
 
@@ -81,7 +83,6 @@ The different classes implementing the different charts behaviours are:
 
 ## TODO
 
-* Externalize properties files
 * Add new use cases using Flink Streaming
 * New use cases using Flink SQL
 * Integrate the CEP

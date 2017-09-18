@@ -42,9 +42,9 @@ import org.apache.log4j.Logger;
 public class BatchMain {
 
 	static final Logger log= LogManager.getLogger(BatchMain.class);
-	static Config config;
 
-	static final String CLI_CMD= "$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5";
+	static final String CLI_CMD= "$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain " +
+			"target/charts-1.0-SNAPSHOT.jar -c chart -l 5 -f -f c://Users//yourpath//application.conf";
 
 	/**
 	 * 	Flink-charts batch job. Giving the parameters:
@@ -77,9 +77,6 @@ public class BatchMain {
 			log.debug("Parsing input parameters ");
 			argsParser= ArgsParser.builder(args);
 
-			log.debug("Loading configuration");
-			config= ConfigFactory.load();
-
 		} catch (ParseException ex)	{
 			log.error("Unable to parse arguments");
 			HelpFormatter formatter = new HelpFormatter();
@@ -88,7 +85,7 @@ public class BatchMain {
 		}
 
 		log.debug("Initializing job: " + argsParser.toString());
-		PipelineChartsConf pipelineConf= new PipelineChartsConf(config, argsParser);
+		PipelineChartsConf pipelineConf= new PipelineChartsConf(argsParser);
 
 		if (argsParser.getChartType().equals(ArgsParser.chartTypeOptions.chart.toString())) {
 			log.debug("Starting Simple Charts job. Getting top track chart!");
@@ -96,7 +93,7 @@ public class BatchMain {
 
 		} else if (argsParser.getChartType().equals(ArgsParser.chartTypeOptions.state_chart.toString())) {
 			log.debug("Starting State Charts job. Getting top track charts by State (country: " +
-					config.getString("ingestion.stateChart.country")+ ").");
+					argsParser.getConfig().getString("ingestion.stateChart.country")+ ").");
 			StateChartsPipeline.run(pipelineConf);
 
 		} else	{

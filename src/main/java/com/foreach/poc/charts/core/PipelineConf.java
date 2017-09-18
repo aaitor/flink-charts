@@ -8,6 +8,11 @@ public abstract class PipelineConf<T> {
     protected Config config;
     protected ArgsParser args;
 
+    protected PipelineConf(ArgsParser args) {
+        this.args= args;
+        this.config= args.getConfig();
+    }
+
     protected PipelineConf(Config config, ArgsParser args) {
         this.config= config;
         this.args= args;

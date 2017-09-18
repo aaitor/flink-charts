@@ -1,7 +1,10 @@
 package com.foreach.poc.charts.core;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.commons.cli.*;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -14,19 +17,36 @@ public class ArgsParser {
     // List of available chart types
     public enum chartTypeOptions {chart, state_chart};
     // Default Limit value
-    private static int DEFAULT_LIMIT= 5;
+    private final static int DEFAULT_LIMIT= 5;
 
     // Chart type (simple chart by default)
     private String chartType= chartTypeOptions.chart.toString();
     // Limit number
     private int limit;
+    // Path to config file
+    private String fileConfPath= null;
 
+    private Config config= null;
 
     public ArgsParser() {}
 
     public ArgsParser(String chartType, int limit) throws ParseException {
         setChartType(chartType);
         setLimit(limit);
+    }
+    public ArgsParser(String chartType, int limit, String fileConfPath) throws ParseException {
+        this(chartType, limit);
+        setFileConfPath(fileConfPath);
+    }
+
+    public Config getConfig()  {
+        if (config!= null)
+            return config;
+        if (fileConfPath == null || fileConfPath.equals(""))
+            config= ConfigFactory.load();
+        else
+            config= ConfigFactory.parseFile(new File(fileConfPath));
+        return config;
     }
 
     public String getChartType() {
@@ -52,11 +72,21 @@ public class ArgsParser {
         return this;
     }
 
+    public String getFileConfPath() {
+        return fileConfPath;
+    }
+
+    public ArgsParser setFileConfPath(String fileConfPath) {
+        this.fileConfPath = fileConfPath;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "{" +
+        return "ArgsParser{" +
                 "chartType='" + chartType + '\'' +
                 ", limit=" + limit +
+                ", fileConfPath='" + fileConfPath + '\'' +
                 '}';
     }
 
@@ -85,9 +115,15 @@ public class ArgsParser {
                 }
             }
 
-            return new ArgsParser()
+            ArgsParser argsParser= new ArgsParser()
                     .setChartType(chartOption)
                     .setLimit(limit);
+
+            if (cmd.hasOption("f")) {
+                argsParser.setFileConfPath(cmd.getOptionValue("f"));
+            }
+
+            return argsParser;
         }
 
         throw new ParseException("Bad parameters used");
@@ -98,7 +134,7 @@ public class ArgsParser {
 
         options.addOption("c", "command", true, "chart type, can be chart or state_chart");
         options.addOption("l", "limit", true, "number of tracks to output");
-        //options.addOption("f", "file", true, "config file pathfile");
+        options.addOption("f", "config", true, "config file path");
 
         return options;
     }

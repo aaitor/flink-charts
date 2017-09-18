@@ -4,6 +4,10 @@ import com.typesafe.config.Config;
 
 public class PipelineChartsConf extends PipelineConf {
 
+    public PipelineChartsConf(ArgsParser args) {
+        super(args);
+    }
+
     public PipelineChartsConf(Config config, ArgsParser args) {
         super(config, args);
     }
