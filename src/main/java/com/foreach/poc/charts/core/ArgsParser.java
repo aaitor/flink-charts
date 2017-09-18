@@ -98,6 +98,7 @@ public class ArgsParser {
 
         options.addOption("c", "command", true, "chart type, can be chart or state_chart");
         options.addOption("l", "limit", true, "number of tracks to output");
+        //options.addOption("f", "file", true, "config file pathfile");
 
         return options;
     }

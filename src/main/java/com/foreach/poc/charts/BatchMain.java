@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
  * Flink Batch Charts jobs
  *
  * From the CLI you can run
- * 		./bin/flink run -c com.foreach.poc.BatchJob target/charts-1.0-SNAPSHOT.jar
+ * 		 $FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5
  *
  * For more information on the CLI see:
  *
@@ -44,7 +44,7 @@ public class BatchMain {
 	static final Logger log= LogManager.getLogger(BatchMain.class);
 	static Config config;
 
-	static final String CLI_CMD= "java -jar target/charts-1.0-SNAPSHOT.jar -c com.foreach.poc.charts.BatchMain";
+	static final String CLI_CMD= "$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5";
 
 	/**
 	 * 	Flink-charts batch job. Giving the parameters:
