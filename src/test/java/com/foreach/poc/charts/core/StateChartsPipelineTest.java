@@ -1,12 +1,11 @@
 package com.foreach.poc.charts.core;
 
-import com.foreach.poc.charts.model.ChartsCliOutput;
+import com.foreach.poc.charts.model.ChartsResult;
 import com.foreach.poc.charts.model.TagEvent;
 import com.foreach.poc.charts.model.TagEventUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,9 +90,9 @@ public class StateChartsPipelineTest {
         mockCollection.add(new Tuple4<>(333l, 1, "S2",new TagEvent(333l, "Artist 3", "Title 3", "S2")));
 
         DataSet<Tuple4<Long, Integer, String, TagEvent>> mockDataset= pipeline.getEnv().fromCollection(mockCollection);
-        DataSet<ChartsCliOutput> transformed= pipeline.transformation(mockDataset);
+        DataSet<ChartsResult> transformed= pipeline.transformation(mockDataset);
 
-        List<ChartsCliOutput> output= transformed.collect();
+        List<ChartsResult> output= transformed.collect();
         // We expect 5 different items
         assertEquals(5, output.size());
 

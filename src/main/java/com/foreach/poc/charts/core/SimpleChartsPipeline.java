@@ -1,6 +1,6 @@
 package com.foreach.poc.charts.core;
 
-import com.foreach.poc.charts.model.ChartsCliOutput;
+import com.foreach.poc.charts.model.ChartsResult;
 import com.foreach.poc.charts.model.TagEvent;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -17,7 +17,7 @@ public class SimpleChartsPipeline extends ChartsPipeline {
 
     public SimpleChartsPipeline(PipelineConf conf) {
         super(conf);
-        env.registerType(ChartsCliOutput.class);
+        env.registerType(ChartsResult.class);
     }
 
     /**
@@ -44,7 +44,7 @@ public class SimpleChartsPipeline extends ChartsPipeline {
      * @param input
      * @return
      */
-    public DataSet<ChartsCliOutput> transformation(DataSet<?> input) {
+    public DataSet<ChartsResult> transformation(DataSet<?> input) {
         log.info("Transformation Phase. Computing the tags");
         return input
                 .groupBy(0) // Grouping by trackId
@@ -53,9 +53,9 @@ public class SimpleChartsPipeline extends ChartsPipeline {
                 .first(pipelineConf.args.getLimit())
                 .map( t -> {
                         Tuple3<Long, Integer, TagEvent> tuple= (Tuple3<Long, Integer, TagEvent>) t;
-                        return new ChartsCliOutput(tuple.f0, tuple.f1, tuple.f2);
+                        return new ChartsResult(tuple.f0, tuple.f1, tuple.f2);
                 })
-                .returns(new TypeHint<ChartsCliOutput>(){});
+                .returns(new TypeHint<ChartsResult>(){});
     }
 
     public static void run(PipelineConf conf) throws Exception {
@@ -63,7 +63,7 @@ public class SimpleChartsPipeline extends ChartsPipeline {
 
         DataSet<TagEvent> inputTags= pipeline.ingestion();
         DataSet<Tuple3<Long, Integer, TagEvent>> cleanTags = pipeline.cleansing(inputTags);
-        DataSet<ChartsCliOutput> topTags= pipeline.transformation(cleanTags);
+        DataSet<ChartsResult> topTags= pipeline.transformation(cleanTags);
 
         System.out.println("CHART POSITION , TRACK TITLE , ARTIST NAME , COUNT");
         AtomicInteger position= new AtomicInteger(0);

@@ -1,6 +1,6 @@
 package com.foreach.poc.charts.core;
 
-import com.foreach.poc.charts.model.ChartsCliOutput;
+import com.foreach.poc.charts.model.ChartsResult;
 import com.foreach.poc.charts.model.TagEvent;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.common.operators.Order;
@@ -12,7 +12,6 @@ import org.apache.flink.util.Collector;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * StateChartsPipeline specialization. Extends Charts pipeline
@@ -22,7 +21,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
 
     public StateChartsPipeline(PipelineConf conf) {
         super(conf);
-        env.registerType(ChartsCliOutput.class);
+        env.registerType(ChartsResult.class);
     }
 
     /**
@@ -52,7 +51,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
      * @param input
      * @return
      */
-    public DataSet<ChartsCliOutput> transformation(DataSet<?> input) {
+    public DataSet<ChartsResult> transformation(DataSet<?> input) {
         final int limit= pipelineConf.getArgs().getLimit();
 
         log.info("Transformation Phase. Computing the tags");
@@ -69,15 +68,15 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
 
         DataSet<TagEvent> inputTags= pipeline.ingestion();
         DataSet<Tuple4<Long, Integer, String, TagEvent>> cleanTags = pipeline.cleansing(inputTags);
-        DataSet<ChartsCliOutput> topTags= pipeline.transformation(cleanTags);
+        DataSet<ChartsResult> topTags= pipeline.transformation(cleanTags);
 
         System.out.println("STATE, CHART POSITION , TRACK TITLE , ARTIST NAME , COUNT");
 
 
-        List<ChartsCliOutput> listTags= topTags.collect();
+        List<ChartsResult> listTags= topTags.collect();
         String previousGroup= "";
         int counter= 1;
-        for (ChartsCliOutput out: listTags) {
+        for (ChartsResult out: listTags) {
             if (!out.getTagEvent().geoZone.equals(previousGroup)) {
                 counter = 1;
                 previousGroup= out.getTagEvent().geoZone;
@@ -91,11 +90,11 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
 
 
     /**
-     * This class reduces the input group given and generates a DataSet of ChartsCliOutput
+     * This class reduces the input group given and generates a DataSet of ChartsResult
      * including only the number of items per group (limit) specified by the user
      */
     public class ReduceLimit implements
-            GroupReduceFunction<Tuple4<Long, Integer, String, TagEvent>, ChartsCliOutput> {
+            GroupReduceFunction<Tuple4<Long, Integer, String, TagEvent>, ChartsResult> {
         int limit;
         int groupPosition;
         ReduceLimit(int limit, int groupPositionField)  {
@@ -103,7 +102,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
             this.groupPosition= groupPositionField;
         }
         @Override
-        public void reduce(Iterable<Tuple4<Long, Integer, String, TagEvent>> values, Collector<ChartsCliOutput> out) throws Exception {
+        public void reduce(Iterable<Tuple4<Long, Integer, String, TagEvent>> values, Collector<ChartsResult> out) throws Exception {
             int counter = 0;
             String group= "";
             log.info("Reducing Groups and applyting limit(" + limit + ") by field " + groupPosition);
@@ -114,7 +113,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
                     group= t.f2;
                 }
                 if (counter < limit) {
-                    out.collect(new ChartsCliOutput(t.f0, t.f1, t.f3));
+                    out.collect(new ChartsResult(t.f0, t.f1, t.f3));
                 }
                 counter++;
             }

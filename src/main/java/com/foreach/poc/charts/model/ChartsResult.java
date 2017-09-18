@@ -1,6 +1,6 @@
 package com.foreach.poc.charts.model;
 
-public class ChartsCliOutput {
+public class ChartsResult {
 
     private long trackId;
 
@@ -8,7 +8,7 @@ public class ChartsCliOutput {
 
     private TagEvent tagEvent;
 
-    public ChartsCliOutput(long trackId, int counter, TagEvent tagEvent) {
+    public ChartsResult(long trackId, int counter, TagEvent tagEvent) {
         this.trackId = trackId;
         this.counter = counter;
         this.tagEvent = tagEvent;

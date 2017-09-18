@@ -1,6 +1,6 @@
 package com.foreach.poc.charts.core;
 
-import com.foreach.poc.charts.model.ChartsCliOutput;
+import com.foreach.poc.charts.model.ChartsResult;
 import com.foreach.poc.charts.model.TagEvent;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -30,7 +30,7 @@ public abstract class ChartsPipeline {
 //
 //    abstract protected DataSet<Tuple4<Long, Integer, String, TagEvent>> cleansingState(DataSet<TagEvent> input);
 
-    abstract protected DataSet<ChartsCliOutput> transformation(DataSet<?> input);
+    abstract protected DataSet<ChartsResult> transformation(DataSet<?> input);
 
     public DataSet<TagEvent> ingestion() {
         log.info("Ingestion Phase. Parsing JSON file: " + pipelineConf.config.getString("ingestion.file.path"));

@@ -61,7 +61,9 @@ public class BatchMain {
 	 * 		3 This Girl Kungs
 	 *
 	 *  Similarly, giving the parameters:
+	 *
 	 *  state_chart 3
+	 *
 	 *  Should output the top 3 tracks in each and every US state. The output format for the state
 	 *  chart should be similar to the above, but you are free to define it.
 	 * @param args

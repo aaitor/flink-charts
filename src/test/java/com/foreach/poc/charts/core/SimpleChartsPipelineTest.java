@@ -1,6 +1,6 @@
 package com.foreach.poc.charts.core;
 
-import com.foreach.poc.charts.model.ChartsCliOutput;
+import com.foreach.poc.charts.model.ChartsResult;
 import com.foreach.poc.charts.model.TagEvent;
 import com.foreach.poc.charts.model.TagEventUtils;
 import com.typesafe.config.Config;
@@ -10,7 +10,6 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.swing.text.html.HTML;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,9 +79,9 @@ public class SimpleChartsPipelineTest {
         mockCollection.add(new Tuple3<>(222l, 1, new TagEvent()));
 
         DataSet<Tuple3<Long, Integer, TagEvent>> mockDataset= pipeline.getEnv().fromCollection(mockCollection);
-        DataSet<ChartsCliOutput> transformed= pipeline.transformation(mockDataset);
+        DataSet<ChartsResult> transformed= pipeline.transformation(mockDataset);
 
-        List<ChartsCliOutput> output= transformed.collect();
+        List<ChartsResult> output= transformed.collect();
         // We only expect 3 different items
         assertEquals(3, output.size());
 

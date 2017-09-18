@@ -118,6 +118,7 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
 
     }
 
+    // TODO: Would be great to revisit this to implement any kind of generic nested parser
     @JsonSetter("match")
     public void setMatch(LinkedHashMap match) {
         try {
