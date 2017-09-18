@@ -2,10 +2,17 @@ package com.foreach.poc.charts.core;
 
 import org.apache.commons.cli.*;
 
+import java.util.Arrays;
+
+/**
+ * Arguments parser class. Implemented to validate the input parameters
+ * given by the user.
+ * More information in builder method.
+ */
 public class ArgsParser {
 
     // List of available chart types
-    private enum chartTypeOptions {chart, state_chart};
+    public enum chartTypeOptions {chart, state_chart};
     // Default Limit value
     private static int DEFAULT_LIMIT= 5;
 
@@ -26,7 +33,10 @@ public class ArgsParser {
         return chartType;
     }
 
-    public ArgsParser setChartType(String chartType) {
+    public ArgsParser setChartType(String chartType) throws ParseException {
+        // Checking if param is in available options
+        if (!Arrays.stream(chartTypeOptions.values()).anyMatch(e -> e.name().equals(chartType)))
+            throw new ParseException("Invalid option");
         this.chartType = chartType;
         return this;
     }

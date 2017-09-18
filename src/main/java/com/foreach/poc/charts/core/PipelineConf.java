@@ -2,6 +2,7 @@ package com.foreach.poc.charts.core;
 
 import com.typesafe.config.Config;
 
+
 public abstract class PipelineConf<T> {
 
     protected Config config;
@@ -12,4 +13,11 @@ public abstract class PipelineConf<T> {
         this.args= args;
     }
 
+    public Config getConfig() {
+        return config;
+    }
+
+    public ArgsParser getArgs() {
+        return args;
+    }
 }

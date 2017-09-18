@@ -18,37 +18,21 @@ package com.foreach.poc.charts;
  * limitations under the License.
  */
 
-import com.foreach.poc.charts.core.*;
-import com.foreach.poc.charts.model.TagEvent;
+import com.foreach.poc.charts.core.ArgsParser;
+import com.foreach.poc.charts.core.PipelineChartsConf;
+import com.foreach.poc.charts.core.SimpleChartsPipeline;
+import com.foreach.poc.charts.core.StateChartsPipeline;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.apache.commons.cli.*;
-import org.apache.flink.api.common.operators.Order;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.aggregation.Aggregations;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import static org.apache.flink.api.java.aggregation.Aggregations.SUM;
-
 /**
- * Skeleton for a Flink Batch Job.
+ * Flink Batch Charts jobs
  *
- * For a full example of a Flink Batch Job, see the WordCountJob.java file in the
- * same package/directory or have a look at the website.
- *
- * You can also generate a .jar file that you can submit on your Flink
- * cluster.
- * Just type
- * 		mvn clean package
- * in the projects root directory.
- * You will find the jar in
- * 		target/charts-1.0-SNAPSHOT.jar
- * From the CLI you can then run
+ * From the CLI you can run
  * 		./bin/flink run -c com.foreach.poc.BatchJob target/charts-1.0-SNAPSHOT.jar
  *
  * For more information on the CLI see:
@@ -60,9 +44,13 @@ public class BatchMain {
 	static final Logger log= LogManager.getLogger(BatchMain.class);
 	static Config config;
 
+	static final String CLI_CMD= "java -jar target/charts-1.0-SNAPSHOT.jar -c com.foreach.poc.charts.BatchMain";
+
 	/**
 	 * 	Flink-charts batch job. Giving the parameters:
+	 *
 	 * 	chart 3
+	 *
 	 * 	Should output the top 3 most tagged tracks irrespective of user location. The output should
 	 * 	be in a columnar format and contain the following fields:
 	 * 	CHART POSITION , TRACK TITLE , ARTIST NAME
@@ -84,60 +72,36 @@ public class BatchMain {
 		ArgsParser argsParser= null;
 
 		try {
+			log.debug("Parsing input parameters ");
 			argsParser= ArgsParser.builder(args);
+
+			log.debug("Loading configuration");
 			config= ConfigFactory.load();
+
 		} catch (ParseException ex)	{
 			log.error("Unable to parse arguments");
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("java -jar xxx.jar -c com.foreach.poc.charts.BatchMain", ArgsParser.getDefaultOptions());
+			formatter.printHelp(CLI_CMD, ArgsParser.getDefaultOptions());
 			System.exit(1);
 		}
 
-		log.info("Initializing job: " + argsParser.toString());
-
-//		log.info("Initializing Flink engine");
-//		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-
+		log.debug("Initializing job: " + argsParser.toString());
 		PipelineChartsConf pipelineConf= new PipelineChartsConf(config, argsParser);
-		ChartsBatchPipeline pipeline= new ChartsBatchPipeline(pipelineConf);
-		DataSet<TagEvent> inputTags= pipeline.ingestion();
-		DataSet<TagEvent> cleanTags= pipeline.cleansing(inputTags);
-		pipeline.transformation();
 
-		log.info("Ingestion Phase. Parsing JSON file: " + config.getString("ingestion.file.path"));
-		DataSet<String> jsonTags= env.readTextFile(config.getString("ingestion.file.path"));
+		if (argsParser.getChartType().equals(ArgsParser.chartTypeOptions.chart.toString())) {
+			log.debug("Starting Simple Charts job. Getting top track chart!");
+			SimpleChartsPipeline.run(pipelineConf);
 
-		log.info("Ingestion Phase. Mapping the string lines to TagEvent bean");
-		DataSet<TagEvent> rawTags= jsonTags.map(line -> TagEvent.builder(line));
+		} else if (argsParser.getChartType().equals(ArgsParser.chartTypeOptions.state_chart.toString())) {
+			log.debug("Starting State Charts job. Getting top track charts by State (country: " +
+					config.getString("ingestion.stateChart.country")+ ").");
+			StateChartsPipeline.run(pipelineConf);
 
-		log.info("Cleansing Phase. Removing the invalid documents");
-		DataSet<Tuple3<Long, Integer, TagEvent>> tagsTuple= rawTags
-				.filter( t -> !t.geoZone.isEmpty() && t.trackId > 0)
-				.map( t -> new Tuple3<>(t.trackId, 1, t))
-				.returns(new TypeHint<Tuple3<Long, Integer, TagEvent>>(){});
-
-		log.info("Transformation Phase. Computing the tags");
-		tagsTuple.groupBy(0) // Grouping by trackId
-				 .sum(1) // Sum the occurrences of each grouped item
-				 .sortPartition(1, Order.DESCENDING).setParallelism(1) // Sort by count
-				 .first(argsParser.getLimit()) // Get only the number of results defined by the user
-				 .collect()
-				 .forEach( t -> log.info("trackId: " + t.f0 + ", count: " + t.f1 + ", " + t.toString())); // Print the results
+		} else	{
+			log.error("Unable to parse arguments");
+			System.exit(1);
+		}
 
 
-
-		/**
-		 * new PipelineConf()
-		 * 		.setConfig("file.path.yaml")
-		 * new ChartsPipeline(pipelineConf)
-		 * pipeline.ingest()
-		 * 			.calculateTopTags(5)
-		 * 			.print()
- 		 */
-
-
-
-		// execute program
-		//env.execute("Flink Batch Java API Skeleton");
 	}
 }

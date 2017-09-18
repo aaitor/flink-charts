@@ -7,11 +7,11 @@ public interface DataPipeline {
 
     DataSet<TagEvent> ingestion();
 
-    DataSet<?> cleansing(DataSet<?> input);
+    DataSet<?> cleansing(DataSet<TagEvent> input);
 
     DataSet<?> normalization(DataSet<?> input);
 
-    DataSet<?> transformation(DataSet<?> input);
+    DataSet<?> transformation(DataSet<?> input) throws Exception;
 
     boolean persistence(DataSet<?> input);
 }

@@ -69,6 +69,22 @@ public class TagEvent extends TagsModel implements FromJsonToModel {
         this.geoRegionLocality= "";
     }
 
+    // Reduced constructor
+    public TagEvent(long trackId, String artistName, String trackTitle, String geoZone) {
+        this();
+        this.trackId= trackId;
+        this.artistName= artistName;
+        this.trackTitle= trackTitle;
+        this.geoZone= geoZone;
+    }
+
+    // Reduced constructor
+    public TagEvent(long trackId, String artistName, String trackTitle, String geoZone, String locality, String country) {
+        this(trackId, artistName, trackTitle, geoZone);
+        this.geoRegionLocality= locality;
+        this.geoRegionCountry= country;
+    }
+
     public static TagEvent builder(String jsonTag) throws IOException {
         return (TagEvent) convertToModel(jsonTag);
     }
