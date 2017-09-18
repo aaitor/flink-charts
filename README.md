@@ -79,4 +79,12 @@ The different classes implementing the different charts behaviours are:
 * **StateChartsPipeline**. Provides the logic to return the top tracks identified by the users per state.
 
 
+## TODO
+
+* Externalize properties files
+* Add new use cases using Flink Streaming
+* New use cases using Flink SQL
+* Integrate the CEP
+* Add the docker files to run in Docker
+
 
