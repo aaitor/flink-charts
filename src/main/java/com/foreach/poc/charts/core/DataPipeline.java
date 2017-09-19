@@ -9,9 +9,13 @@ import org.apache.flink.api.java.DataSet;
  */
 public interface DataPipeline<T> {
 
-    DataSet<TagEvent> ingestion();
+    /**
+     * ETL phase implementing the ingestion of data
+     * @return
+     */
+    DataSet<?> ingestion();
 
-    DataSet<?> cleansing(DataSet<TagEvent> input);
+    DataSet<?> cleansing(DataSet<?> input);
 
     DataSet<?> normalization(DataSet<?> input);
 

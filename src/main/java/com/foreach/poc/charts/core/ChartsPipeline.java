@@ -11,10 +11,11 @@ import org.apache.log4j.Logger;
  * ChartsPipeline generalization class. Provides the common Charts pipeline capabilities.
  * Different kind of charts extends from here.
  */
-public abstract class ChartsPipeline {
+public abstract class ChartsPipeline implements DataPipeline<TagEvent> {
 
     static final Logger log= LogManager.getLogger(ChartsPipeline.class);
 
+    // Flink execution environment
     protected final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
     protected PipelineConf pipelineConf;
@@ -26,12 +27,10 @@ public abstract class ChartsPipeline {
         this.pipelineConf= conf;
     }
 
-//    abstract protected DataSet<Tuple3<Long, Integer, TagEvent>> cleansing(DataSet<TagEvent> input);
-//
-//    abstract protected DataSet<Tuple4<Long, Integer, String, TagEvent>> cleansingState(DataSet<TagEvent> input);
-
-    abstract protected DataSet<ChartsResult> transformation(DataSet<?> input);
-
+    /**
+     * Ingestion common phase
+     * @return
+     */
     public DataSet<TagEvent> ingestion() {
         log.info("Ingestion Phase. Parsing JSON file: " + pipelineConf.config.getString("ingestion.file.path"));
         return getEnv()
@@ -39,7 +38,11 @@ public abstract class ChartsPipeline {
                 .map(line -> TagEvent.builder(line));
     }
 
-    // Normalization not required for this use case
+    /**
+     * Normalization common phase. Not implemented initially
+     * @param input
+     * @return
+     */
     public DataSet<?> normalization(DataSet<?> input) {
         log.info("Normalization Phase");
         return input;

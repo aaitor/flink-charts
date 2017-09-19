@@ -29,13 +29,12 @@ public class SimpleChartsPipeline extends ChartsPipeline implements DataPipeline
      * @return
      */
     @Override
-    public DataSet<Tuple3<Long, Integer, TagEvent>> cleansing(DataSet<TagEvent> input) {
+    public DataSet<Tuple3<Long, Integer, TagEvent>> cleansing(DataSet<?> input) {
         log.info("Cleansing Phase. Removing invalid TagEvent's");
-        return input
-                .filter(t ->
-                        //!t.geoZone.isEmpty() &&
-                                t.trackId > 0)
-                .map( t -> new Tuple3<>(t.trackId, 1, t))
+
+        return ((DataSet<TagEvent>) input)
+                .filter(t -> t.trackId > 0) // Removing all the events with invalid trackids
+                .map( t -> new Tuple3<>(t.trackId, 1, t)) // getting tuples
                 .returns(new TypeHint<Tuple3<Long, Integer, TagEvent>>(){});
     }
 

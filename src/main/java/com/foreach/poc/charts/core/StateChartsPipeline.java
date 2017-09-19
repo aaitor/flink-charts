@@ -33,10 +33,10 @@ public class StateChartsPipeline extends ChartsPipeline implements DataPipeline<
      * @return
      */
     @Override
-    public DataSet<Tuple4<Long, Integer, String, TagEvent>> cleansing(DataSet<TagEvent> input) {
+    public DataSet<Tuple4<Long, Integer, String, TagEvent>> cleansing(DataSet<?> input) {
         log.info("Cleansing Phase. Removing invalid TagEvent's");
         String country= pipelineConf.getConfig().getString("ingestion.stateChart.country");
-        return input
+        return ((DataSet<TagEvent>) input)
                 .filter( t ->
                         t.geoRegionCountry.equals(country)
                                 && t.trackId > 0
