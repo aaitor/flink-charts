@@ -37,7 +37,7 @@ properties by default packaged in the jar file (TODO: Uncoment in the pom.xml th
 This package doesn't include the sample data set, so you should copy your own dataset and setup the file in the application.conf file.
 
 After to modify the application.conf and compile the application, you can run using the following command:
-* To generate the general top tags use the -c chart parameter: 
+* To generate the general top tags use the -c chart parameter:
 `$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain target/charts-1.0-SNAPSHOT.jar -c chart -l 5 -f c://Users//yourpath//application.conf`
 
 * To generate the top tags per state use the -c state_chart parameter:
@@ -45,6 +45,38 @@ After to modify the application.conf and compile the application, you can run us
 
 Depending if you are running in Windows, MacOS or Linux you will need to run the flink.sh or flink.bat script. Also the paths 
 to the config files should be adapted depending of the environment. 
+
+### Running using Docker
+
+If you don't have flink in your local environment but have Docker, you can run the code using the following commands.
+
+First of all you need to access the docker folder start the flink docker instances (jobmanager & taskmanager)
+`cd docker && docker-compose up`
+
+Copy the jar file packaging the application and the config files to the jobmanager:
+
+`docker cp ../target/charts-1.0-SNAPSHOT.jar docker_jobmanager_1:/flink`
+`docker cp ../target/charts-1.0-SNAPSHOT.zip docker_jobmanager_1:/flink`
+
+Copy your sample dataset to the docker image (in the /flink folder):
+
+`docker cp ../src/test/resources/data/tag-sample.json docker_jobmanager_1:/flink/`
+
+Unzip the properties files:
+
+`docker exec -it docker_jobmanager_1 sh -c "cd /flink &&  unzip -u /flink/*.zip"`
+
+Replace the path to the dataset in the application.conf file. Update this command if you are using a dataset in a different path:
+
+`docker exec -it docker_jobmanager_1 sh -c  "sed -i 's/src\/test\/resources/\/flink/g' /flink/config/application.conf"`
+
+Run the command:
+
+`docker exec -it docker_jobmanager_1 sh -c "flink run -c com.foreach.poc.charts.BatchMain /flink/charts-1.0-SNAPSHOT.jar -c state_chart -l 5 -f /flink/config/application.conf"`
+
+After to run the flink application you should be able to see the execution details in the Flink console:
+
+http://localhost:8081/
 
 ## Application Architecture
 
