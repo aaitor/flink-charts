@@ -107,11 +107,15 @@ kind of invalid input data.
 * Transformation. After clean and/or normalize this phase compute the calculations.
 * Persistence. This phase is not implemented initially.
 
+The pipeline behaviour is defined in the **DataPipeline** interface. Different kind of charts use cases
+implement this DataPipeline interface.
+
 The **ChartsPipeline** abstract class define the generalization of this Data Pipeline implementation. 
 The different classes implementing the different charts behaviours are:
 * **SimpleChartsPipeline**. Provides the logic to return the top tracks identified by the users.
 * **StateChartsPipeline**. Provides the logic to return the top tracks identified by the users per state.
 
+The different Charts
 
 ## TODO
 

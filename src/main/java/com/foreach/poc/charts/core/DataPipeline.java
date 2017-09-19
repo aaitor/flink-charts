@@ -3,6 +3,10 @@ package com.foreach.poc.charts.core;
 import com.foreach.poc.charts.model.TagEvent;
 import org.apache.flink.api.java.DataSet;
 
+/**
+ * Interface defining the data pipeline behaviour
+ * @param <T>
+ */
 public interface DataPipeline<T> {
 
     DataSet<TagEvent> ingestion();
