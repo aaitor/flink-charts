@@ -16,6 +16,7 @@ To compile and run this project you need:
 * Maven 3
 * Apache Flink 1.3 (scala 2.11)
 
+If you want to run using Docker instances you need Docker and Docker compose.
 
 ## How to compile?
 
@@ -31,6 +32,8 @@ Also using maven assembly the application generates a zip file in target folder 
  and **log4j.properties** file. 
 
 ## How to run the application?
+
+Application execution was tested in MacOSX, Windows and Linux (using Docker)*[]:
 
 Properties file are packaged in an independent zip file, if the -f option is not provided the software will use the 
 properties by default packaged in the jar file (TODO: Uncoment in the pom.xml the options to remove those files).
@@ -56,6 +59,7 @@ First of all you need to access the docker folder start the flink docker instanc
 Copy the jar file packaging the application and the config files to the jobmanager:
 
 `docker cp ../target/charts-1.0-SNAPSHOT.jar docker_jobmanager_1:/flink`
+
 `docker cp ../target/charts-1.0-SNAPSHOT.zip docker_jobmanager_1:/flink`
 
 Copy your sample dataset to the docker image (in the /flink folder):
