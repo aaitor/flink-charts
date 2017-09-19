@@ -118,6 +118,5 @@ The different classes implementing the different charts behaviours are:
 * Add new use cases using Flink Streaming
 * New use cases using Flink SQL
 * Integrate the CEP
-* Add the docker files to run in Docker
 
 
