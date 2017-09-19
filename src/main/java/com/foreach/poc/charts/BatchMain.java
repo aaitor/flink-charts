@@ -44,7 +44,7 @@ public class BatchMain {
 	static final Logger log= LogManager.getLogger(BatchMain.class);
 
 	static final String CLI_CMD= "$FLINK_HOME/bin/flink run -c com.foreach.poc.charts.BatchMain " +
-			"target/charts-1.0-SNAPSHOT.jar -c chart -l 5 -f -f c://Users//yourpath//application.conf";
+			"target/charts-1.0-SNAPSHOT.jar -c chart -l 5 -f c://Users//yourpath//application.conf";
 
 	/**
 	 * 	Flink-charts batch job. Giving the parameters:

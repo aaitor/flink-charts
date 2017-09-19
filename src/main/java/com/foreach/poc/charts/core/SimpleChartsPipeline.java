@@ -7,13 +7,14 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.tuple.Tuple3;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * SimpleChartsPipeline specialization. Extends Charts pipeline
  * and implements a custom cleansing and transformation logic.
  */
-public class SimpleChartsPipeline extends ChartsPipeline {
+public class SimpleChartsPipeline extends ChartsPipeline implements DataPipeline<TagEvent>, Serializable {
 
     public SimpleChartsPipeline(PipelineConf conf) {
         super(conf);
@@ -27,6 +28,7 @@ public class SimpleChartsPipeline extends ChartsPipeline {
      * @param input
      * @return
      */
+    @Override
     public DataSet<Tuple3<Long, Integer, TagEvent>> cleansing(DataSet<TagEvent> input) {
         log.info("Cleansing Phase. Removing invalid TagEvent's");
         return input
@@ -44,6 +46,7 @@ public class SimpleChartsPipeline extends ChartsPipeline {
      * @param input
      * @return
      */
+    @Override
     public DataSet<ChartsResult> transformation(DataSet<?> input) {
         log.info("Transformation Phase. Computing the tags");
         return input
@@ -58,6 +61,16 @@ public class SimpleChartsPipeline extends ChartsPipeline {
                 .returns(new TypeHint<ChartsResult>(){});
     }
 
+    @Override
+    public boolean persistence(DataSet<?> input) {
+        return false;
+    }
+
+    /**
+     * Pipeline runner. This static method orchestrates the pipeline execution stages.
+     * @param conf
+     * @throws Exception
+     */
     public static void run(PipelineConf conf) throws Exception {
         SimpleChartsPipeline pipeline= new SimpleChartsPipeline(conf);
 

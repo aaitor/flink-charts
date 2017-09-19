@@ -17,7 +17,7 @@ import java.util.List;
  * StateChartsPipeline specialization. Extends Charts pipeline
  * and implements a custom cleansing and transformation logic.
  */
-public class StateChartsPipeline extends ChartsPipeline implements Serializable {
+public class StateChartsPipeline extends ChartsPipeline implements DataPipeline<TagEvent>, Serializable {
 
     public StateChartsPipeline(PipelineConf conf) {
         super(conf);
@@ -32,6 +32,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
      * @param input
      * @return
      */
+    @Override
     public DataSet<Tuple4<Long, Integer, String, TagEvent>> cleansing(DataSet<TagEvent> input) {
         log.info("Cleansing Phase. Removing invalid TagEvent's");
         String country= pipelineConf.getConfig().getString("ingestion.stateChart.country");
@@ -51,6 +52,7 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
      * @param input
      * @return
      */
+    @Override
     public DataSet<ChartsResult> transformation(DataSet<?> input) {
         final int limit= pipelineConf.getArgs().getLimit();
 
@@ -63,6 +65,16 @@ public class StateChartsPipeline extends ChartsPipeline implements Serializable 
                 return grouped.reduceGroup(new ReduceLimit(limit, 2)); // Reducing groups applying the limit specified by user
     }
 
+    @Override
+    public boolean persistence(DataSet<?> input) {
+        return false;
+    }
+
+    /**
+     * Pipeline runner. This static method orchestrates the pipeline execution stages.
+     * @param conf
+     * @throws Exception
+     */
     public static void run(PipelineConf conf) throws Exception {
         StateChartsPipeline pipeline= new StateChartsPipeline(conf);
 

@@ -2,6 +2,9 @@ package com.foreach.poc.charts.core;
 
 import com.typesafe.config.Config;
 
+/**
+ * Specialization related with Charts
+ */
 public class PipelineChartsConf extends PipelineConf {
 
     public PipelineChartsConf(ArgsParser args) {

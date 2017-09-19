@@ -8,7 +8,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- * ChartsPipeline generalization class
+ * ChartsPipeline generalization class. Provides the common Charts pipeline capabilities.
  * Different kind of charts extends from here.
  */
 public abstract class ChartsPipeline {
